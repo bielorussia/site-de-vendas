@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Livraria | Seu próximo livro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+
+    <div class="container px-4 px-lg-5">
+
+        <a class="navbar-brand fw-bold" href="index.html">
+            <i class="bi bi-book-half me-2"></i>
+            Livraria
+        </a>
+
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuPrincipal">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+
+                    <a class="nav-link active" href="index.html#catalogo">
+                        Catálogo
+                    </a>
+
+                </li>
+
+                <li class="nav-item dropdown">
+
+                    <a
+                        class="nav-link dropdown-toggle"
+                        href="#"
+                        role="button"
+                        data-bs-toggle="dropdown">
+
+                        Gêneros
+
+                    </a>
+
+                    <ul class="dropdown-menu" id="menuGeneros"></ul>
+
+                </li>
+
+            </ul>
+
+            <a href="carrinho.html" class="btn btn-outline-dark">
+
+                <i class="bi bi-cart-fill me-1"></i>
+
+                Carrinho
+
+                <span
+                    class="badge bg-dark text-white ms-1 rounded-pill"
+                    id="contadorCarrinho">
+
+                    0
+
+                </span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<header class="hero py-5">
+
+    <div class="container px-4 px-lg-5 my-5">
+
+        <div class="text-center text-white">
+
+            <div class="book-icon mb-3">
+
+                <i class="bi bi-book"></i>
+
+            </div>
+
+            <h1 class="display-4 fw-bold">
+                Encontre seu próximo livro
+            </h1>
+
+            <p class="lead mb-0">
+                Explore histórias, aventuras e novos mundos.
+            </p>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="py-4 bg-light">
+
+    <div class="container px-4 px-lg-5">
+
+        <div
+            class="d-flex flex-wrap gap-2 justify-content-center"
+            id="botoesGeneros">
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="py-5" id="catalogo">
+
+    <div class="container px-4 px-lg-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h2 class="fw-bold mb-1" id="tituloCatalogo">
+                    Catálogo de livros
+                </h2>
+
+                <p class="text-muted mb-0" id="quantidadeLivros"></p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="row gx-4 gy-5 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4"
+            id="catalogoLivros">
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer class="py-4 bg-dark">
+
+    <div class="container text-center text-white">
+
+        <p class="mb-0">
+
+            © <span id="ano"></span>
+            Livraria - Projeto acadêmico
+
+        </p>
+
+    </div>
+
+</footer>
+
+
+<script src="produtos.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+
+function obterCarrinho() {
+
+    return JSON.parse(
+        localStorage.getItem("carrinho") || "{}"
+    );
+
+}
+
+
+function salvarCarrinho(carrinho) {
+
+    localStorage.setItem(
+        "carrinho",
+        JSON.stringify(carrinho)
+    );
+
+}
+
+
+function atualizarContador() {
+
+    const carrinho = obterCarrinho();
+
+    const total = Object.values(carrinho)
+        .reduce(
+            (soma, quantidade) =>
+                soma + Number(quantidade),
+            0
+        );
+
+    document.getElementById("contadorCarrinho").textContent = total;
+
+}
+
+
+function adicionarAoCarrinho(id) {
+
+    const carrinho = obterCarrinho();
+
+    if (carrinho[id]) {
+
+        carrinho[id]++;
+
+    } else {
+
+        carrinho[id] = 1;
+
+    }
+
+    salvarCarrinho(carrinho);
+
+    atualizarContador();
+
+}
+
+
+function obterGeneroAtual() {
+
+    const parametros =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    return parametros.get("genero") || "Todos";
+
+}
+
+
+function criarLinkGenero(genero) {
+
+    return "index.html?genero="
+        + encodeURIComponent(genero)
+        + "#catalogo";
+
+}
+
+
+const generos = [
+    ...new Set(
+        produtos.map(produto => produto.genero)
+    )
+].sort();
+
+
+function montarMenuGeneros() {
+
+    const menu =
+        document.getElementById("menuGeneros");
+
+    menu.innerHTML = "";
+
+    const itemTodos =
+        document.createElement("li");
+
+    itemTodos.innerHTML = `
+        <a
+            class="dropdown-item"
+            href="${criarLinkGenero("Todos")}">
+
+            Todos
+
+        </a>
+    `;
+
+    menu.appendChild(itemTodos);
+
+
+    generos.forEach(genero => {
+
+        const item =
+            document.createElement("li");
+
+        item.innerHTML = `
+            <a
+                class="dropdown-item"
+                href="${criarLinkGenero(genero)}">
+
+                ${genero}
+
+            </a>
+        `;
+
+        menu.appendChild(item);
+
+    });
+
+}
+
+
+function montarBotoesGeneros() {
+
+    const container =
+        document.getElementById("botoesGeneros");
+
+    const generoAtual =
+        obterGeneroAtual();
+
+
+    let html = `
+        <a
+            href="${criarLinkGenero("Todos")}"
+            class="btn ${
+                generoAtual === "Todos"
+                    ? "btn-dark"
+                    : "btn-outline-dark"
+            }">
+
+            Todos
+
+        </a>
+    `;
+
+
+    generos.forEach(genero => {
+
+        html += `
+            <a
+                href="${criarLinkGenero(genero)}"
+                class="btn ${
+                    generoAtual === genero
+                        ? "btn-dark"
+                        : "btn-outline-dark"
+                }">
+
+                ${genero}
+
+            </a>
+        `;
+
+    });
+
+
+    container.innerHTML = html;
+
+}
+
+
+function montarCatalogo() {
+
+    const generoAtual =
+        obterGeneroAtual();
+
+
+    const produtosExibidos =
+        produtos.filter(produto => {
+
+            return (
+                generoAtual === "Todos"
+                ||
+                produto.genero === generoAtual
+            );
+
+        });
+
+
+    const titulo =
+        document.getElementById(
+            "tituloCatalogo"
+        );
+
+
+    const quantidade =
+        document.getElementById(
+            "quantidadeLivros"
+        );
+
+
+    const catalogo =
+        document.getElementById(
+            "catalogoLivros"
+        );
+
+
+    if (generoAtual === "Todos") {
+
+        titulo.textContent =
+            "Catálogo de livros";
+
+    } else {
+
+        titulo.textContent =
+            generoAtual;
+
+    }
+
+
+    quantidade.textContent =
+        `${produtosExibidos.length} livro(s) encontrado(s)`;
+
+
+    catalogo.innerHTML = "";
+
+
+    produtosExibidos.forEach(produto => {
+
+        const coluna =
+            document.createElement("div");
+
+        coluna.className = "col";
+
+
+        coluna.innerHTML = `
+
+            <div class="card h-100 book-card border-0 shadow-sm">
+
+                <div class="book-cover">
+
+                    <img
+                        src="${produto.imagem}"
+                        alt="${produto.nome}"
+                        onerror="this.src='https://placehold.co/450x600/e9ecef/495057?text=Livro'">
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <span class="badge text-bg-light border mb-2">
+
+                        ${produto.genero}
+
+                    </span>
+
+
+                    <h5 class="fw-bold mb-1">
+
+                        ${produto.nome}
+
+                    </h5>
+
+
+                    <p class="text-muted small mb-3">
+
+                        ${produto.autor}
+
+                    </p>
+
+
+                    <div class="price">
+
+                        R$
+                        ${produto.preco.toLocaleString(
+                            "pt-BR",
+                            {
+                                minimumFractionDigits: 2
+                            }
+                        )}
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-footer p-4 pt-0 border-0 bg-transparent">
+
+                    <button
+                        onclick="adicionarAoCarrinho(${produto.id})"
+                        class="btn btn-dark w-100">
+
+                        <i class="bi bi-cart-plus me-1"></i>
+
+                        Adicionar ao carrinho
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        catalogo.appendChild(coluna);
+
+    });
+
+}
+
+
+document.getElementById("ano").textContent =
+    new Date().getFullYear();
+
+
+montarMenuGeneros();
+
+montarBotoesGeneros();
+
+montarCatalogo();
+
+atualizarContador();
+
+</script>
+
+</body>
+
+</html>

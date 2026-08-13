@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Carrinho | Livraria</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet">
+
+    <link href="css/styles.css" rel="stylesheet">
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+
+    <div class="container px-4 px-lg-5">
+
+
+        <a
+            class="navbar-brand fw-bold"
+            href="index.html">
+
+            <i class="bi bi-book-half me-2"></i>
+
+            Livraria
+
+        </a>
+
+
+        <a
+            href="index.html#catalogo"
+            class="btn btn-outline-dark">
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Voltar ao catálogo
+
+        </a>
+
+
+    </div>
+
+</nav>
+
+
+<section class="py-5">
+
+    <div class="container px-4 px-lg-5">
+
+
+        <div class="mb-4">
+
+            <h1 class="fw-bold">
+                Seu carrinho
+            </h1>
+
+            <p class="text-muted">
+                Confira os livros que você selecionou.
+            </p>
+
+        </div>
+
+
+        <div id="conteudoCarrinho"></div>
+
+
+    </div>
+
+</section>
+
+
+<footer class="py-4 bg-dark">
+
+    <div class="container text-center text-white">
+
+        <p class="mb-0">
+
+            ©
+            <span id="ano"></span>
+            Livraria - Projeto acadêmico
+
+        </p>
+
+    </div>
+
+</footer>
+
+
+<script src="produtos.js"></script>
+
+
+<script>
+
+
+function obterCarrinho() {
+
+    return JSON.parse(
+        localStorage.getItem("carrinho") || "{}"
+    );
+
+}
+
+
+function salvarCarrinho(carrinho) {
+
+    localStorage.setItem(
+        "carrinho",
+        JSON.stringify(carrinho)
+    );
+
+}
+
+
+function formatarPreco(valor) {
+
+    return valor.toLocaleString(
+        "pt-BR",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    );
+
+}
+
+
+function removerProduto(id) {
+
+    const carrinho =
+        obterCarrinho();
+
+    delete carrinho[id];
+
+    salvarCarrinho(carrinho);
+
+    renderizarCarrinho();
+
+}
+
+
+function limparCarrinho() {
+
+    const confirmar =
+        confirm(
+            "Deseja realmente limpar o carrinho?"
+        );
+
+
+    if (!confirmar) {
+
+        return;
+
+    }
+
+
+    localStorage.removeItem(
+        "carrinho"
+    );
+
+
+    renderizarCarrinho();
+
+}
+
+
+function atualizarQuantidade(
+    id,
+    quantidade
+) {
+
+    const carrinho =
+        obterCarrinho();
+
+
+    quantidade =
+        parseInt(quantidade);
+
+
+    if (
+        isNaN(quantidade)
+        ||
+        quantidade < 1
+    ) {
+
+        quantidade = 1;
+
+    }
+
+
+    carrinho[id] =
+        quantidade;
+
+
+    salvarCarrinho(carrinho);
+
+    renderizarCarrinho();
+
+}
+
+
+function renderizarCarrinho() {
+
+    const area =
+        document.getElementById(
+            "conteudoCarrinho"
+        );
+
+
+    const carrinho =
+        obterCarrinho();
+
+
+    const ids =
+        Object.keys(carrinho);
+
+
+    if (ids.length === 0) {
+
+        area.innerHTML = `
+
+            <div class="empty-cart text-center py-5">
+
+                <i
+                    class="bi bi-cart-x display-1 text-muted">
+                </i>
+
+
+                <h3 class="mt-3">
+
+                    Seu carrinho está vazio
+
+                </h3>
+
+
+                <p class="text-muted">
+
+                    Adicione alguns livros para continuar.
+
+                </p>
+
+
+                <a
+                    href="index.html#catalogo"
+                    class="btn btn-dark">
+
+                    Explorar livros
+
+                </a>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let total = 0;
+
+    let totalItens = 0;
+
+
+    let produtosCarrinho = "";
+
+
+    ids.forEach(id => {
+
+        const produto =
+            encontrarProduto(id);
+
+
+        if (!produto) {
+
+            return;
+
+        }
+
+
+        let quantidade =
+            Number(carrinho[id]);
+
+
+        if (
+            isNaN(quantidade)
+            ||
+            quantidade < 1
+        ) {
+
+            quantidade = 1;
+
+        }
+
+
+        const subtotal =
+            produto.preco *
+            quantidade;
+
+
+        total += subtotal;
+
+        totalItens += quantidade;
+
+
+        produtosCarrinho += `
+
+            <div class="card border-0 shadow-sm mb-3">
+
+                <div class="card-body">
+
+                    <div class="row align-items-center g-3">
+
+
+                        <div class="col-4 col-md-2">
+
+                            <img
+                                src="${produto.imagem}"
+                                class="cart-image"
+                                alt="${produto.nome}"
+                                onerror="this.src='https://placehold.co/200x280/e9ecef/495057?text=Livro'">
+
+                        </div>
+
+
+                        <div class="col-8 col-md-4">
+
+                            <span
+                                class="badge text-bg-light border">
+
+                                ${produto.genero}
+
+                            </span>
+
+
+                            <h5 class="fw-bold mt-2 mb-1">
+
+                                ${produto.nome}
+
+                            </h5>
+
+
+                            <p class="text-muted mb-0">
+
+                                ${produto.autor}
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-6 col-md-2">
+
+                            <small class="text-muted d-block">
+
+                                Preço
+
+                            </small>
+
+
+                            R$
+                            ${formatarPreco(
+                                produto.preco
+                            )}
+
+                        </div>
+
+
+                        <div class="col-6 col-md-2">
+
+                            <label class="small text-muted">
+
+                                Quantidade
+
+                            </label>
+
+
+                            <input
+                                type="number"
+                                min="1"
+                                value="${quantidade}"
+                                class="form-control"
+                                onchange="atualizarQuantidade(
+                                    ${produto.id},
+                                    this.value
+                                )">
+
+                        </div>
+
+
+                        <div class="col-10 col-md-1 fw-bold">
+
+                            R$
+                            ${formatarPreco(
+                                subtotal
+                            )}
+
+                        </div>
+
+
+                        <div class="col-2 col-md-1 text-end">
+
+                            <button
+                                onclick="removerProduto(
+                                    ${produto.id}
+                                )"
+                                class="btn btn-sm btn-outline-danger"
+                                title="Remover">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+    });
+
+
+    area.innerHTML = `
+
+        <div class="row g-4">
+
+
+            <div class="col-lg-8">
+
+                ${produtosCarrinho}
+
+
+                <button
+                    onclick="renderizarCarrinho()"
+                    class="btn btn-outline-dark">
+
+                    <i class="bi bi-arrow-repeat me-1"></i>
+
+                    Atualizar quantidades
+
+                </button>
+
+
+                <button
+                    onclick="limparCarrinho()"
+                    class="btn btn-outline-danger ms-2">
+
+                    Limpar carrinho
+
+                </button>
+
+            </div>
+
+
+            <div class="col-lg-4">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-body p-4">
+
+
+                        <h4 class="fw-bold">
+
+                            Resumo do pedido
+
+                        </h4>
+
+
+                        <hr>
+
+
+                        <div
+                            class="d-flex justify-content-between mb-2">
+
+                            <span>
+
+                                Itens
+
+                            </span>
+
+
+                            <span>
+
+                                ${totalItens}
+
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="d-flex justify-content-between mb-3">
+
+                            <span>
+
+                                Subtotal
+
+                            </span>
+
+
+                            <strong>
+
+                                R$
+                                ${formatarPreco(total)}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div
+                            class="d-flex justify-content-between fs-5">
+
+                            <strong>
+
+                                Total
+
+                            </strong>
+
+
+                            <strong>
+
+                                R$
+                                ${formatarPreco(total)}
+
+                            </strong>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-dark w-100 mt-4"
+                            disabled>
+
+                            Finalizar compra
+
+                        </button>
+
+
+                        <small
+                            class="text-muted d-block text-center mt-2">
+
+                            A finalização será implementada posteriormente.
+
+                        </small>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
+
+
+document.getElementById("ano").textContent =
+    new Date().getFullYear();
+
+
+renderizarCarrinho();
+
+</script>
+
+
+</body>
+
+</html>

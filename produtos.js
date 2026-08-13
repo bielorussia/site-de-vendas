@@ -36,7 +36,7 @@ const produtos = [
         autor: "Jojo Moyes",
         genero: "Drama",
         preco: 39.90,
-        imagem: "drama/comoeuerantesdevoce.jpeg"
+        imagem: "drama/comoeueraantesdevoce.jpeg"
     },
 
     {
@@ -81,7 +81,7 @@ const produtos = [
         autor: "John Green",
         genero: "Drama",
         preco: 34.90,
-        imagem: "drama/quemveocealasa.jpeg"
+        imagem: "drama/quemevocealasca.jpeg"
     },
 
     {
@@ -99,7 +99,7 @@ const produtos = [
         autor: "Rachael Lippincott",
         genero: "Drama",
         preco: 39.90,
-        imagem: "drama/todoesse tempo.jpeg"
+        imagem: "drama/todoessetempo.jpeg"
     },
 
 

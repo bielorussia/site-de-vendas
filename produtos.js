@@ -149,7 +149,7 @@ const produtos = [
         autor: "Sarah J. Maas",
         genero: "Fantasia",
         preco: 49.90,
-        imagem: "fantasia/corteden...jpeg"
+        imagem: "fantasia/cortedenoajpeg"
     },
 
     {
@@ -203,7 +203,7 @@ const produtos = [
         autor: "Rick Riordan",
         genero: "Fantasia",
         preco: 49.90,
-        imagem: "fantasia/percy...jpeg"
+        imagem: "fantasia/percyeosolimpianosjpeg"
     },
 
     {
